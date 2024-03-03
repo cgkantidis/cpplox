@@ -40,10 +40,10 @@ int Lox::run_prompt() {
 /// Run the Lox interpreter on the `source` code.
 void Lox::run(char const *source) {
   Scanner scanner(source);
-  std::vector<Token> tokens = scanner.scan_tokens();
+  std::vector<Token> const tokens = scanner.scan_tokens();
   m_had_error = scanner.had_error();
 
-  for (auto const token : tokens) {
+  for (auto const &token : tokens) {
     std::cout << token.to_string() << '\n';
   }
 }

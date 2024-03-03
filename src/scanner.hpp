@@ -16,7 +16,7 @@ private:
 
 public:
   Scanner(char const *source) : m_source(source) {}
-  std::vector<Token> &scan_tokens();
+  std::vector<Token> scan_tokens();
   bool had_error() const {
     return m_had_error;
   }
@@ -55,6 +55,7 @@ private:
     return true;
   }
 
+  void add_string_token();
   void scan_token();
 };
 
