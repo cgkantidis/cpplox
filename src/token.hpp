@@ -2,6 +2,7 @@
 #define TOKEN_HPP
 
 #include <exception>
+#include <stdexcept>
 #include <string>
 
 #include "token_type.hpp"
@@ -24,14 +25,19 @@ public:
         m_lexeme(lexeme),
         m_literal(literal),
         m_line(line) {}
-  Token(Token const &) = delete;
-  Token(Token &&) = default;
-  Token &operator=(Token const &) = delete;
-  Token &operator=(Token &&) = default;
-  ~Token() {
+
+  // we don't use a destructor so that if Token is stored in a std::vector and
+  // the vector is resized, the move operator can treat the Token a trivially
+  // copyable. This means that the owner of each token must call free_token of
+  // it. (pesimization?)
+  void free_token() const {
     switch (m_type) {
     case TokenType::STRING: {
       delete static_cast<std::string *>(m_literal);
+      break;
+    }
+    case TokenType::NUMBER: {
+      delete static_cast<double *>(m_literal);
       break;
     }
     default: {
@@ -115,8 +121,10 @@ public:
     case TokenType::STRING: {
       return *static_cast<std::string *>(m_literal);
     }
+    case TokenType::NUMBER: {
+      return std::to_string(*static_cast<double *>(m_literal));
+    }
     case TokenType::IDENTIFIER:
-    case TokenType::NUMBER:
     case TokenType::AND:
     case TokenType::CLASS:
     case TokenType::ELSE:
@@ -133,9 +141,9 @@ public:
     case TokenType::TRUE:
     case TokenType::VAR:
     case TokenType::WHILE:
-      std::terminate();
+      throw std::runtime_error("Not implemented");
     }
-    std::terminate();
+    throw std::runtime_error("Unexpected token type");
   }
 };
 

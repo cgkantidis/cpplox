@@ -2,6 +2,7 @@
 #include "error_message.hpp"
 #include "token_type.hpp"
 
+#include <charconv>
 #include <exception>
 #include <iostream>
 
@@ -33,11 +34,34 @@ void Scanner::add_string_token() {
   // the closing "
   advance();
 
-  void *literal = static_cast<void *>(new std::string(
+  auto *str = new std::string(
       m_source.data() + m_token_start_idx + 1,
-      m_current_idx - m_token_start_idx - 2));
-  add_token(TokenType::STRING, literal);
+      m_current_idx - m_token_start_idx - 2);
+  add_token(TokenType::STRING, str);
   m_current_line += lines_to_advance;
+}
+
+void Scanner::add_number_token() {
+  while (std::isdigit(peek())) {
+    advance();
+  }
+
+  // look for a fractional part
+  if (peek() == '.' && std::isdigit(peek_next())) {
+    // consume the '.'
+    advance();
+
+    while (std::isdigit(peek())) {
+      advance();
+    }
+  }
+
+  auto *value = new double();
+  std::from_chars(
+      m_source.data() + m_token_start_idx,
+      m_source.data() + m_current_idx,
+      *value);
+  add_token(TokenType::NUMBER, value);
 }
 
 void Scanner::scan_token() {
@@ -119,6 +143,19 @@ void Scanner::scan_token() {
   }
   case '"': {
     add_string_token();
+    break;
+  }
+  case '0':
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+  case '8':
+  case '9': {
+    add_number_token();
     break;
   }
   default: {

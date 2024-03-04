@@ -9,3 +9,6 @@
 "this is a multi
 line string"
 /
+123
+123.456
+999

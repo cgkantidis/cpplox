@@ -1,4 +1,5 @@
 #include <exception>
+#include <stdexcept>
 
 #include "token_type.hpp"
 
@@ -123,5 +124,5 @@ std::string tt_to_string(TokenType const type) {
   }
   }
 
-  std::terminate();
+  throw std::runtime_error("Unexpected token type");
 }

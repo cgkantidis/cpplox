@@ -43,7 +43,13 @@ private:
   }
 
   char peek() const {
-    return m_source[m_current_idx];
+    return m_source.at(m_current_idx);
+  }
+
+  char peek_next() const {
+    return m_current_idx + 1 >= m_source.size()
+               ? '\0'
+               : m_source.at(m_current_idx + 1);
   }
 
   bool match(char expected) {
@@ -56,6 +62,7 @@ private:
   }
 
   void add_string_token();
+  void add_number_token();
   void scan_token();
 };
 

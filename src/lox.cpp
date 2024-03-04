@@ -1,4 +1,5 @@
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <sstream>
 
@@ -46,4 +47,5 @@ void Lox::run(char const *source) {
   for (auto const &token : tokens) {
     std::cout << token.to_string() << '\n';
   }
+  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
 }
