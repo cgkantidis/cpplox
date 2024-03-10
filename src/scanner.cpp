@@ -5,6 +5,7 @@
 #include <charconv>
 #include <exception>
 #include <iostream>
+#include <unordered_map>
 
 std::vector<Token> Scanner::scan_tokens() {
   while (!is_at_end()) {
@@ -64,74 +65,117 @@ void Scanner::add_number_token() {
   add_token(TokenType::NUMBER, value);
 }
 
+constexpr bool isdigit(char const ch) {
+  return ch >= '0' && ch <= '9';
+}
+
+constexpr bool isalpha(char const ch) {
+  return ch == '_' || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+}
+
+constexpr bool isalnum(char const ch) {
+  return isdigit(ch) || isalpha(ch);
+}
+
+void Scanner::add_identifier_token() {
+  static const std::unordered_map<std::string_view, TokenType> keywords(
+      {{"and", TokenType::AND},
+       {"class", TokenType::CLASS},
+       {"else", TokenType::ELSE},
+       {"false", TokenType::FALSE},
+       {"for", TokenType::FOR},
+       {"fun", TokenType::FUN},
+       {"if", TokenType::IF},
+       {"nil", TokenType::NIL},
+       {"or", TokenType::OR},
+       {"print", TokenType::PRINT},
+       {"return", TokenType::RETURN},
+       {"super", TokenType::SUPER},
+       {"this", TokenType::THIS},
+       {"true", TokenType::TRUE},
+       {"var", TokenType::VAR},
+       {"while", TokenType::WHILE}});
+
+  while (isalnum(peek())) {
+    advance();
+  }
+
+  std::string_view text(
+      m_source.data() + m_token_start_idx,
+      m_source.data() + m_current_idx);
+  if (auto it = keywords.find(text); it != keywords.end()) {
+    add_token(it->second);
+  } else {
+    add_token(TokenType::IDENTIFIER, new std::string(text));
+  }
+}
+
 void Scanner::scan_token() {
-  switch (advance()) {
-  case ' ':
-  case '\r':
-  case '\t': {
-    break;
+  char ch = advance();
+  if (ch == ' ' || ch == '\r' || ch == '\t') {
+    return;
   }
-  case '\n': {
+  if (ch == '\n') {
     ++m_current_line;
-    break;
+    return;
   }
-  case '(': {
+  if (ch == '(') {
     add_token(TokenType::LEFT_PAREN);
-    break;
+    return;
   }
-  case ')': {
+  if (ch == ')') {
     add_token(TokenType::RIGHT_PAREN);
-    break;
+    return;
   }
-  case '{': {
+  if (ch == '{') {
     add_token(TokenType::LEFT_BRACE);
-    break;
+    return;
   }
-  case '}': {
+  if (ch == '}') {
     add_token(TokenType::RIGHT_BRACE);
-    break;
+    return;
   }
-  case ',': {
+  if (ch == ',') {
     add_token(TokenType::COMMA);
-    break;
+    return;
   }
-  case '.': {
+  if (ch == '.') {
     add_token(TokenType::DOT);
-    break;
+    return;
   }
-  case '-': {
+  if (ch == '-') {
     add_token(TokenType::MINUS);
-    break;
+    return;
   }
-  case '+': {
+  if (ch == '+') {
     add_token(TokenType::PLUS);
-    break;
+    return;
   }
-  case ';': {
+  if (ch == ';') {
     add_token(TokenType::SEMICOLON);
-    break;
+    return;
   }
-  case '*': {
+  if (ch == '*') {
     add_token(TokenType::STAR);
-    break;
+    return;
   }
-  case '!': {
+  if (ch == '!') {
     add_token(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
-    break;
+    return;
   }
-  case '=': {
+  if (ch == '=') {
     add_token(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
-    break;
+    return;
   }
-  case '<': {
+  if (ch == '<') {
     add_token(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS);
-    break;
+    return;
   }
-  case '>': {
+  if (ch == '>') {
     add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
-    break;
+    return;
   }
-  case '/': {
+  if (ch == '/') {
     if (match('/')) {
       while (peek() != '\n' && !is_at_end()) {
         advance();
@@ -139,28 +183,21 @@ void Scanner::scan_token() {
     } else {
       add_token(TokenType::SLASH);
     }
-    break;
+    return;
   }
-  case '"': {
+  if (ch == '"') {
     add_string_token();
-    break;
+    return;
   }
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9': {
+  if (isdigit(ch)) {
     add_number_token();
-    break;
+    return;
   }
-  default: {
-    m_had_error = true;
-    error(m_current_line, "Unexpected character.");
+  if (isalpha(ch)) {
+    add_identifier_token();
+    return;
   }
-  }
+
+  m_had_error = true;
+  error(m_current_line, "Unexpected character.");
 }

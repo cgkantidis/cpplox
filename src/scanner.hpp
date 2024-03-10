@@ -63,6 +63,7 @@ private:
 
   void add_string_token();
   void add_number_token();
+  void add_identifier_token();
   void scan_token();
 };
 

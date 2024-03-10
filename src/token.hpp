@@ -40,6 +40,10 @@ public:
       delete static_cast<double *>(m_literal);
       break;
     }
+    case TokenType::IDENTIFIER: {
+      delete static_cast<std::string *>(m_literal);
+      break;
+    }
     default: {
       break;
     }
@@ -118,30 +122,63 @@ public:
     case TokenType::END_OF_FILE: {
       return "EOF";
     }
-    case TokenType::STRING: {
+    case TokenType::IDENTIFIER: {
       return *static_cast<std::string *>(m_literal);
     }
     case TokenType::NUMBER: {
       return std::to_string(*static_cast<double *>(m_literal));
     }
-    case TokenType::IDENTIFIER:
-    case TokenType::AND:
-    case TokenType::CLASS:
-    case TokenType::ELSE:
-    case TokenType::FALSE:
-    case TokenType::FUN:
-    case TokenType::FOR:
-    case TokenType::IF:
-    case TokenType::NIL:
-    case TokenType::OR:
-    case TokenType::PRINT:
-    case TokenType::RETURN:
-    case TokenType::SUPER:
-    case TokenType::THIS:
-    case TokenType::TRUE:
-    case TokenType::VAR:
-    case TokenType::WHILE:
-      throw std::runtime_error("Not implemented");
+    case TokenType::STRING: {
+      return *static_cast<std::string *>(m_literal);
+    }
+    case TokenType::AND: {
+      return "AND";
+    }
+    case TokenType::CLASS: {
+      return "CLASS";
+    }
+    case TokenType::ELSE: {
+      return "ELSE";
+    }
+    case TokenType::FALSE: {
+      return "FALSE";
+    }
+    case TokenType::FUN: {
+      return "FUN";
+    }
+    case TokenType::FOR: {
+      return "FOR";
+    }
+    case TokenType::IF: {
+      return "IF";
+    }
+    case TokenType::NIL: {
+      return "NIL";
+    }
+    case TokenType::OR: {
+      return "OR";
+    }
+    case TokenType::PRINT: {
+      return "PRINT";
+    }
+    case TokenType::RETURN: {
+      return "RETURN";
+    }
+    case TokenType::SUPER: {
+      return "SUPER";
+    }
+    case TokenType::THIS: {
+      return "THIS";
+    }
+    case TokenType::TRUE: {
+      return "TRUE";
+    }
+    case TokenType::VAR: {
+      return "VAR";
+    }
+    case TokenType::WHILE: {
+      return "WHILE";
+    }
     }
     throw std::runtime_error("Unexpected token type");
   }
