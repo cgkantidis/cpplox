@@ -2,6 +2,8 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
+#include <sysexits.h>  // EX_DATAERR
+#include <vector>  // std::vector
 
 #include "lox.hpp"
 #include "scanner.hpp"
@@ -11,13 +13,14 @@
 /// In case of error it returns a non-zero value, else it returns zero.
 int Lox::run_file(char const *script_path) {
   std::ifstream instream(script_path);
+  // read the whole file in memory
   std::stringstream ss;
   ss << instream.rdbuf();
   run(ss.str().c_str());
-  if (m_had_error) {
-    return 65;
-  }
 
+  if (m_had_error) {
+    return EX_DATAERR;
+  }
   return 0;
 }
 
@@ -38,7 +41,7 @@ int Lox::run_prompt() {
   return 0;
 }
 
-/// Run the Lox interpreter on the `source` code.
+/// Run the Lox interpreter on the `source` code
 void Lox::run(char const *source) {
   Scanner scanner(source);
   std::vector<Token> const tokens = scanner.scan_tokens();

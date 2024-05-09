@@ -1,11 +1,13 @@
-#include <iostream>
+#include <iostream>  // cerr
+#include <sysexits.h>  // EX_USAGE
 
+#include "expr.hpp"
 #include "lox.hpp"
 
-int main(int const argc, char const *const argv[]) {
+int main(int argc, char const *const *argv) {
   if (argc > 2) {
-    std::cout << "Usage: " << argv[0] << " [script]\n";
-    return 64;
+    std::cerr << "Usage: " << argv[0] << " [script]\n";
+    return EX_USAGE;
   }
 
   Lox lox;
@@ -15,4 +17,3 @@ int main(int const argc, char const *const argv[]) {
 
   return lox.run_file(argv[1]);
 }
-

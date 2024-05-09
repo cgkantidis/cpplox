@@ -1,5 +1,4 @@
-#include <exception>
-#include <stdexcept>
+#include <stdexcept>  // std::runtime_error
 
 #include "token_type.hpp"
 

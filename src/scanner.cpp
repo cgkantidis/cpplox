@@ -3,8 +3,6 @@
 #include "token_type.hpp"
 
 #include <charconv>
-#include <exception>
-#include <iostream>
 #include <unordered_map>
 
 std::vector<Token> Scanner::scan_tokens() {
@@ -43,12 +41,12 @@ void Scanner::add_string_token() {
 }
 
 void Scanner::add_number_token() {
-  while (std::isdigit(peek())) {
+  while (isdigit(peek())) {
     advance();
   }
 
   // look for a fractional part
-  if (peek() == '.' && std::isdigit(peek_next())) {
+  if (peek() == '.' && isdigit(peek_next())) {
     // consume the '.'
     advance();
 

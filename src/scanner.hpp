@@ -5,17 +5,24 @@
 
 #include "token.hpp"
 
+/// The scanner scans the source code, separates it into lexemes, and turns the
+/// lexemes into tokens.
+///
+/// The lexemes are only the raw substrings of the source code. However, in the
+/// process of grouping character sequences into lexemes, we also stumble upon
+/// some other useful information. When we take the lexeme and bundle it
+/// together with that other data, the result is a token
 class Scanner {
 private:
-  std::string_view m_source{};
+  std::string_view m_source;
   std::size_t m_current_line{1};
   std::size_t m_current_idx{};
   std::size_t m_token_start_idx{};
   std::vector<Token> m_tokens;
-  bool m_had_error;
+  bool m_had_error{false};
 
 public:
-  Scanner(char const *source) : m_source(source) {}
+  explicit Scanner(char const *source) : m_source(source) {}
   std::vector<Token> scan_tokens();
   bool had_error() const {
     return m_had_error;

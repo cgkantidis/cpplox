@@ -1,7 +1,6 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
-#include <exception>
 #include <stdexcept>
 #include <string>
 
@@ -9,6 +8,7 @@
 
 /// We use `void *` for m_literal so that we can store different types of Tokens
 /// in a vector
+/// TODO: consider using a class hierarchy for the different Token types
 class Token {
   TokenType m_type;
   std::string_view m_lexeme;
@@ -50,7 +50,7 @@ public:
     }
   }
 
-  std::string to_string() const {
+  [[nodiscard]] std::string to_string() const {
     return std::to_string(m_line)
         .append(": ")
         .append(tt_to_string(m_type))
@@ -60,7 +60,7 @@ public:
         .append(literal_to_string());
   }
 
-  std::string literal_to_string() const {
+  [[nodiscard]] std::string literal_to_string() const {
     switch (m_type) {
     case TokenType::LEFT_PAREN: {
       return "(";

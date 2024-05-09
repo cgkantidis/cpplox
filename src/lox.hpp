@@ -1,8 +1,6 @@
 #ifndef LOX_HPP
 #define LOX_HPP
 
-#include <vector>
-
 class Lox {
 private:
   bool m_had_error{};

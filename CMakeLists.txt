@@ -12,10 +12,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # enable all warnings and treat them as errors
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic)
+# https://github.com/cpp-best-practices/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#gcc--clang
+add_compile_options(-Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion -Wsign-conversion -Wmisleading-indentation -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wimplicit-fallthrough)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wuseless-cast)
+endif()
 add_compile_options(-Werror)
-# enable clang-tidy checks
-set(CMAKE_CXX_CLANG_TIDY clang-tidy --use-color)
 
 set(allowedBuildTypes Debug Release ASAN MSAN UBSAN TSAN Profile HeapProfile)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowedBuildTypes}")
