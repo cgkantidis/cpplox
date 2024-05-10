@@ -1,6 +1,7 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
+#include <fmt/core.h>
 #include <stdexcept>
 #include <string>
 
@@ -126,7 +127,7 @@ public:
       return *static_cast<std::string *>(m_literal);
     }
     case TokenType::NUMBER: {
-      return std::to_string(*static_cast<double *>(m_literal));
+      return fmt::format("{}", *static_cast<double *>(m_literal));
     }
     case TokenType::STRING: {
       return *static_cast<std::string *>(m_literal);

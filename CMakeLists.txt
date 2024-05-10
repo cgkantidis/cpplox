@@ -11,16 +11,42 @@ set(CMAKE_CXX_STANDARD 20)
 # generate the compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# enable all warnings and treat them as errors
-add_compile_options(-Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic)
-# https://github.com/cpp-best-practices/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#gcc--clang
-add_compile_options(-Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion -Wsign-conversion -Wmisleading-indentation -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wimplicit-fallthrough)
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  # using Clang
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wuseless-cast)
-endif()
-add_compile_options(-Werror)
+link_directories(${RHOME}/lib ${RHOME}/lib64)
+
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+set(CMAKE_BUILD_RPATH "$ENV{RHOME}/lib;$ENV{RHOME}/lib64")
+set(CMAKE_INSTALL_RPATH "$ENV{RHOME}/lib;$ENV{RHOME}/lib64")
+
+include(FetchContent)
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG        10.2.1
+  OVERRIDE_FIND_PACKAGE
+)
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.6.0
+  OVERRIDE_FIND_PACKAGE
+)
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+find_package(fmt REQUIRED)
+find_package(Catch2 3 REQUIRED)
+
+function(target_add_warnings target)
+  # enable all warnings
+  target_compile_options(${target} PRIVATE -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic)
+  # https://github.com/cpp-best-practices/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#gcc--clang
+  target_compile_options(${target} PRIVATE -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion -Wsign-conversion -Wmisleading-indentation -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wimplicit-fallthrough)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # using Clang
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${target} PRIVATE -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wuseless-cast)
+  endif()
+  # treat all warnings as errors
+  target_compile_options(${target} PRIVATE -Werror)
+endfunction()
 
 set(allowedBuildTypes Debug Release ASAN MSAN UBSAN TSAN Profile HeapProfile)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowedBuildTypes}")
@@ -45,3 +71,4 @@ endif()
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_subdirectory(src)
+add_subdirectory(tests)

@@ -5,9 +5,21 @@
 #include <charconv>
 #include <unordered_map>
 
+constexpr bool isdigit(char const ch) {
+  return ch >= '0' && ch <= '9';
+}
+
+constexpr bool isalpha(char const ch) {
+  return ch == '_' || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+}
+
+constexpr bool isalnum(char const ch) {
+  return isdigit(ch) || isalpha(ch);
+}
+
 std::vector<Token> Scanner::scan_tokens() {
   while (!is_at_end()) {
-    m_token_start_idx = m_current_idx;
+    m_start_idx = m_current_idx;
     scan_token();
   }
 
@@ -34,8 +46,8 @@ void Scanner::add_string_token() {
   advance();
 
   auto *str = new std::string(
-      m_source.data() + m_token_start_idx + 1,
-      m_current_idx - m_token_start_idx - 2);
+      m_source.data() + m_start_idx + 1,
+      m_current_idx - m_start_idx - 2);
   add_token(TokenType::STRING, str);
   m_current_line += lines_to_advance;
 }
@@ -50,29 +62,17 @@ void Scanner::add_number_token() {
     // consume the '.'
     advance();
 
-    while (std::isdigit(peek())) {
+    while (isdigit(peek())) {
       advance();
     }
   }
 
   auto *value = new double();
   std::from_chars(
-      m_source.data() + m_token_start_idx,
+      m_source.data() + m_start_idx,
       m_source.data() + m_current_idx,
       *value);
   add_token(TokenType::NUMBER, value);
-}
-
-constexpr bool isdigit(char const ch) {
-  return ch >= '0' && ch <= '9';
-}
-
-constexpr bool isalpha(char const ch) {
-  return ch == '_' || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
-
-constexpr bool isalnum(char const ch) {
-  return isdigit(ch) || isalpha(ch);
 }
 
 void Scanner::add_identifier_token() {
@@ -99,7 +99,7 @@ void Scanner::add_identifier_token() {
   }
 
   std::string_view text(
-      m_source.data() + m_token_start_idx,
+      m_source.data() + m_start_idx,
       m_source.data() + m_current_idx);
   if (auto it = keywords.find(text); it != keywords.end()) {
     add_token(it->second);
@@ -175,6 +175,7 @@ void Scanner::scan_token() {
   }
   if (ch == '/') {
     if (match('/')) {
+      // we're in a comment line, so advance till the end of the line
       while (peek() != '\n' && !is_at_end()) {
         advance();
       }
@@ -197,5 +198,5 @@ void Scanner::scan_token() {
   }
 
   m_had_error = true;
-  error(m_current_line, "Unexpected character.");
+  report(m_current_line, m_source.substr(m_start_idx, 1), "Unexpected character");
 }

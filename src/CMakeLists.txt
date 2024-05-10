@@ -1,4 +1,6 @@
 add_executable(cpplox main.cpp lox.cpp scanner.cpp token_type.cpp error_message.cpp)
+target_add_warnings(cpplox)
+target_link_libraries(cpplox PRIVATE fmt::fmt)
 
 if(CMAKE_BUILD_TYPE STREQUAL Profile)
   target_link_options(cpplox PRIVATE "-pg")
@@ -10,4 +12,3 @@ elseif(CMAKE_BUILD_TYPE STREQUAL MSAN)
   target_link_options(cpplox PRIVATE -fsanitize=memory)
 endif()
 
-install(TARGETS cpplox)

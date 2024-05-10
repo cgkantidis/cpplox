@@ -15,26 +15,54 @@
 class Scanner {
 private:
   std::string_view m_source;
-  std::size_t m_current_line{1};
-  std::size_t m_current_idx{};
-  std::size_t m_token_start_idx{};
+  std::size_t m_current_line{1}; // current line in m_source
+  std::size_t m_start_idx{}; // index in m_source where the current lexeme begun
+  std::size_t m_current_idx{}; // current index in m_source
   std::vector<Token> m_tokens;
   bool m_had_error{false};
 
 public:
   explicit Scanner(char const *source) : m_source(source) {}
   std::vector<Token> scan_tokens();
-  bool had_error() const {
+  [[nodiscard]] bool had_error() const {
     return m_had_error;
   }
 
 private:
-  bool is_at_end() const {
-    return m_current_idx == m_source.size();
+  [[nodiscard]] bool is_at_end() const {
+    return m_current_idx >= m_source.size();
   }
 
+  /// Consume the next character and return it
   char advance() {
     return m_source[m_current_idx++];
+  }
+
+  /// match() is like a conditional advance()
+  /// If the next character is the expected one consume it and return true;
+  /// otherwise return false without consuming it
+  bool match(char expected) {
+    if (is_at_end() || m_source[m_current_idx] != expected) {
+      return false;
+    }
+
+    ++m_current_idx;
+    return true;
+  }
+
+  /// Return the next character without consuming it (lookahead)
+  [[nodiscard]] char peek() const {
+    if (m_current_idx >= m_source.size()) {
+      return '\0';
+    }
+    return m_source[m_current_idx];
+  }
+
+  [[nodiscard]] char peek_next() const {
+    if (m_current_idx + 1 >= m_source.size()) {
+      return '\0';
+    }
+    return m_source[m_current_idx + 1];
   }
 
   void add_token(TokenType type) {
@@ -44,28 +72,9 @@ private:
   void add_token(TokenType type, void *literal) {
     m_tokens.emplace_back(
         type,
-        m_source.substr(m_token_start_idx, m_current_idx - m_token_start_idx),
+        m_source.substr(m_start_idx, m_current_idx - m_start_idx),
         literal,
         m_current_line);
-  }
-
-  char peek() const {
-    return m_source.at(m_current_idx);
-  }
-
-  char peek_next() const {
-    return m_current_idx + 1 >= m_source.size()
-               ? '\0'
-               : m_source.at(m_current_idx + 1);
-  }
-
-  bool match(char expected) {
-    if (is_at_end() || m_source[m_current_idx] != expected) {
-      return false;
-    }
-
-    ++m_current_idx;
-    return true;
   }
 
   void add_string_token();
