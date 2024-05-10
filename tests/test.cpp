@@ -110,6 +110,20 @@ line string"
   std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
 }
 
+TEST_CASE("Unterminated string", "[scanner]") {
+  Scanner scanner(R"("this is an unterminated string)");
+  std::vector<Token> const tokens = scanner.scan_tokens();
+  REQUIRE(scanner.had_error());
+  REQUIRE(tokens.size() == 1);
+
+  auto const str_tokens = tokens_to_strings(tokens);
+  REQUIRE_THAT(
+      str_tokens,
+      Catch::Matchers::Equals(std::vector<std::string>({"EOF"})));
+
+  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+}
+
 TEST_CASE("Numbers", "[scanner]") {
   Scanner scanner(R"(
 123
@@ -131,14 +145,9 @@ TEST_CASE("Numbers", "[scanner]") {
 
 TEST_CASE("Identifiers", "[scanner]") {
   Scanner scanner(R"(
-AND
+// reserved words
 and
-And
-anD
-CLASS
 class
-classs
-CLASSS
 else
 false
 for
@@ -153,6 +162,13 @@ this
 true
 var
 while
+// identifiers
+AND
+And
+anD
+CLASS
+classs
+CLASSS
 )");
   std::vector<Token> const tokens = scanner.scan_tokens();
   REQUIRE(!scanner.had_error());
@@ -162,10 +178,10 @@ while
   REQUIRE_THAT(
       str_tokens,
       Catch::Matchers::Equals(std::vector<std::string>(
-          {"AND",    "and",    "And",  "anD",   "CLASS",  "class",
-           "classs", "CLASSS", "else", "false", "for",    "fun",
-           "if",     "nil",    "or",   "print", "return", "super",
-           "this",   "true",   "var",  "while", "EOF"})));
+          {"and",  "class", "else",   "false",  "for",    "fun",
+           "if",   "nil",   "or",     "print",  "return", "super",
+           "this", "true",  "var",    "while",  "AND",    "And",
+           "anD",  "CLASS", "classs", "CLASSS", "EOF"})));
 
   std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
 }

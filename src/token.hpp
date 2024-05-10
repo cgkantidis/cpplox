@@ -133,52 +133,52 @@ public:
       return *static_cast<std::string *>(m_literal);
     }
     case TokenType::AND: {
-      return "AND";
+      return "and";
     }
     case TokenType::CLASS: {
-      return "CLASS";
+      return "class";
     }
     case TokenType::ELSE: {
-      return "ELSE";
+      return "else";
     }
     case TokenType::FALSE: {
-      return "FALSE";
+      return "false";
     }
     case TokenType::FUN: {
-      return "FUN";
+      return "fun";
     }
     case TokenType::FOR: {
-      return "FOR";
+      return "for";
     }
     case TokenType::IF: {
-      return "IF";
+      return "if";
     }
     case TokenType::NIL: {
-      return "NIL";
+      return "nil";
     }
     case TokenType::OR: {
-      return "OR";
+      return "or";
     }
     case TokenType::PRINT: {
-      return "PRINT";
+      return "print";
     }
     case TokenType::RETURN: {
-      return "RETURN";
+      return "return";
     }
     case TokenType::SUPER: {
-      return "SUPER";
+      return "super";
     }
     case TokenType::THIS: {
-      return "THIS";
+      return "this";
     }
     case TokenType::TRUE: {
-      return "TRUE";
+      return "true";
     }
     case TokenType::VAR: {
-      return "VAR";
+      return "var";
     }
     case TokenType::WHILE: {
-      return "WHILE";
+      return "while";
     }
     }
     throw std::runtime_error("Unexpected token type");

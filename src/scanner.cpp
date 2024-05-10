@@ -10,7 +10,7 @@ constexpr bool isdigit(char const ch) {
 }
 
 constexpr bool isalpha(char const ch) {
-  return ch == '_' || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+  return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_';
 }
 
 constexpr bool isalnum(char const ch) {
@@ -31,14 +31,17 @@ void Scanner::add_string_token() {
   std::size_t lines_to_advance = 0;
   while (peek() != '"' && !is_at_end()) {
     // we allow string literals spanning multiple lines
-    if (peek() == '\n') {
+    if (advance() == '\n') {
       ++lines_to_advance;
     }
-    advance();
   }
 
   if (is_at_end()) {
-    error(m_current_line, "Unterminated string.");
+    m_had_error = true;
+    report(
+        m_current_line,
+        m_source.substr(m_start_idx, m_current_idx - m_start_idx),
+        "Unterminated string");
     return;
   }
 
@@ -76,7 +79,7 @@ void Scanner::add_number_token() {
 }
 
 void Scanner::add_identifier_token() {
-  static const std::unordered_map<std::string_view, TokenType> keywords(
+  static const std::unordered_map<std::string_view, TokenType> reserved_words(
       {{"and", TokenType::AND},
        {"class", TokenType::CLASS},
        {"else", TokenType::ELSE},
@@ -98,13 +101,13 @@ void Scanner::add_identifier_token() {
     advance();
   }
 
-  std::string_view text(
-      m_source.data() + m_start_idx,
-      m_source.data() + m_current_idx);
-  if (auto it = keywords.find(text); it != keywords.end()) {
+  auto identifier = m_source.substr(m_start_idx, m_current_idx - m_start_idx);
+  if (auto it = reserved_words.find(identifier); it != reserved_words.end()) {
+    // found reserved word
     add_token(it->second);
   } else {
-    add_token(TokenType::IDENTIFIER, new std::string(text));
+    // it's not a reserved word so it's an identifier
+    add_token(TokenType::IDENTIFIER, new std::string(identifier));
   }
 }
 
@@ -198,5 +201,8 @@ void Scanner::scan_token() {
   }
 
   m_had_error = true;
-  report(m_current_line, m_source.substr(m_start_idx, 1), "Unexpected character");
+  report(
+      m_current_line,
+      m_source.substr(m_start_idx, 1),
+      "Unexpected character");
 }
