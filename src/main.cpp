@@ -1,5 +1,5 @@
-#include <iostream>  // cerr
-#include <sysexits.h>  // EX_USAGE
+#include <iostream> // cerr
+#include <sysexits.h> // EX_USAGE
 
 #include "expr.hpp"
 #include "lox.hpp"

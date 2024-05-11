@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
+#include <expr.hpp>
 #include <functional>
 #include <scanner.hpp>
 
@@ -184,4 +185,19 @@ CLASSS
            "anD",  "CLASS", "classs", "CLASSS", "EOF"})));
 
   std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+}
+
+TEST_CASE("Pretty printer", "[printer]") {
+  // -123 * (45.67) * "asd"
+  auto const expr = std::unique_ptr<Expr>(new Binary(
+      new Binary(
+          new Unary(
+              Token(TokenType::MINUS, "-", nullptr, 1),
+              new NumericLiteral(123.0)),
+          Token(TokenType::STAR, "*", nullptr, 1),
+          new Grouping(new NumericLiteral(45.67))),
+      Token(TokenType::STAR, "*", nullptr, 1),
+      new StringLiteral("asd")));
+  fmt::println("{}", expr->to_string());
+  REQUIRE(expr->to_string() == "(* (* (- 123) (group 45.67)) \"asd\")");
 }

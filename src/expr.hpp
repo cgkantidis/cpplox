@@ -1,11 +1,14 @@
-#include "token.hpp"
+#include <fmt/core.h>
 #include <iostream>
 #include <memory>
 
+#include "token.hpp"
+
 class Expr {
 public:
-  virtual std::string to_string(std::size_t indent = 0) const = 0;
-  virtual ~Expr() {};
+  virtual ~Expr() = default;
+
+  [[nodiscard]] virtual std::string to_string() const = 0;
 };
 
 class Binary : public Expr {
@@ -20,15 +23,16 @@ public:
         m_oper{oper},
         m_right{right} {}
 
-  ~Binary() {
+  ~Binary() override {
     std::cout << "~Binary()\n";
   }
 
-  std::string to_string(std::size_t indent = 0) const override {
-    return std::string(indent * 4, ' ') + m_oper.literal_to_string() + '\n'
-           + std::string(indent * 4, ' ') + m_left->to_string(indent + 1) + '\n'
-           + std::string(indent * 4, ' ') + m_right->to_string(indent + 1)
-           + '\n';
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format(
+        "({} {} {})",
+        m_oper.literal_to_string(),
+        m_left->to_string(),
+        m_right->to_string());
   }
 };
 
@@ -36,68 +40,65 @@ class Grouping : public Expr {
   std::unique_ptr<Expr> m_expr;
 
 public:
-  Grouping(Expr *expr) : m_expr{expr} {}
+  explicit Grouping(Expr *expr) : m_expr{expr} {}
 
-  ~Grouping() {
+  ~Grouping() override {
     std::cout << "~Grouping()\n";
   }
 
-  std::string to_string(std::size_t indent = 0) const override {
-    return std::string(indent * 4, ' ') + std::string("group") + '\n'
-           + std::string(indent * 4, ' ') + m_expr->to_string(indent + 1)
-           + '\n';
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format("(group {})", m_expr->to_string());
   }
 };
 
 class StringLiteral : public Expr {
 private:
-  std::unique_ptr<std::string> m_str;
+  std::string m_str;
 
 public:
-  StringLiteral(std::string *str) : m_str{str} {}
+  explicit StringLiteral(std::string_view str) : m_str{str} {}
 
-  ~StringLiteral() {
+  ~StringLiteral() override {
     std::cout << "~StringLiteral()\n";
   }
 
-  std::string
-  to_string([[maybe_unused]] std::size_t indent = 0) const override {
-    return std::string(indent * 4, ' ') + *m_str;
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format("\"{}\"", m_str);
   }
 };
 
-class NumberLiteral : public Expr {
+class NumericLiteral : public Expr {
 private:
-  std::unique_ptr<double> m_number;
+  double m_number;
 
 public:
-  NumberLiteral(double *number) : m_number{number} {}
+  explicit NumericLiteral(double number) : m_number{number} {}
 
-  ~NumberLiteral() {
-    std::cout << "~NumberLiteral()\n";
+  ~NumericLiteral() override {
+    std::cout << "~NumericLiteral()\n";
   }
 
-  std::string
-  to_string([[maybe_unused]] std::size_t indent = 0) const override {
-    return std::string(indent * 4, ' ') + std::to_string(*m_number);
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format("{}", m_number);
   }
 };
 
 class Unary : public Expr {
 private:
   Token m_oper;
-  std::unique_ptr<Expr> m_right;
+  std::unique_ptr<Expr> m_expr;
 
 public:
-  Unary(Token oper, Expr *right) : m_oper{oper}, m_right{right} {}
+  Unary(Token oper, Expr *expr) : m_oper{oper}, m_expr{expr} {}
 
-  ~Unary() {
+  ~Unary() override {
     std::cout << "~Unary()\n";
   }
 
-  std::string
-  to_string([[maybe_unused]] std::size_t indent = 0) const override {
-    return std::string(indent * 4, ' ') + m_oper.literal_to_string() + '\n'
-           + std::string(indent * 4, ' ') + m_right->to_string(indent + 1);
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format(
+        "({} {})",
+        m_oper.literal_to_string(),
+        m_expr->to_string());
   }
 };
