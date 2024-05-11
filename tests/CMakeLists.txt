@@ -2,6 +2,7 @@ add_executable(test
                test.cpp
                ${CMAKE_SOURCE_DIR}/src/lox.cpp
                ${CMAKE_SOURCE_DIR}/src/scanner.cpp
+               ${CMAKE_SOURCE_DIR}/src/parser.cpp
                ${CMAKE_SOURCE_DIR}/src/token_type.cpp
                ${CMAKE_SOURCE_DIR}/src/error_message.cpp)
 target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR}/src)

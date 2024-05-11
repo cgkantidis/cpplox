@@ -1,6 +1,7 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
+#include <cstddef>
 #include <fmt/core.h>
 #include <stdexcept>
 #include <string>
@@ -14,7 +15,7 @@ class Token {
   TokenType m_type;
   std::string_view m_lexeme;
   void *m_literal;
-  unsigned long m_line;
+  std::size_t m_line;
 
 public:
   Token(
@@ -26,6 +27,23 @@ public:
         m_lexeme(lexeme),
         m_literal(literal),
         m_line(line) {}
+
+  [[nodiscard]] TokenType type() const {
+    return m_type;
+  }
+
+  [[nodiscard]] std::string_view lexeme() const {
+    return m_lexeme;
+  }
+
+  template <class T>
+  T *literal() const {
+    return static_cast<T *>(m_literal);
+  }
+
+  [[nodiscard]] std::size_t line() const {
+    return m_line;
+  }
 
   // we don't use a destructor so that if Token is stored in a std::vector and
   // the vector is resized, the move operator can treat the Token a trivially

@@ -1,3 +1,6 @@
+#ifndef EXPR_HPP
+#define EXPR_HPP
+
 #include <fmt/core.h>
 #include <iostream>
 #include <memory>
@@ -51,6 +54,26 @@ public:
   }
 };
 
+class Unary : public Expr {
+private:
+  Token m_oper;
+  std::unique_ptr<Expr> m_expr;
+
+public:
+  Unary(Token oper, Expr *expr) : m_oper{oper}, m_expr{expr} {}
+
+  ~Unary() override {
+    std::cout << "~Unary()\n";
+  }
+
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format(
+        "({} {})",
+        m_oper.literal_to_string(),
+        m_expr->to_string());
+  }
+};
+
 class StringLiteral : public Expr {
 private:
   std::string m_str;
@@ -83,22 +106,33 @@ public:
   }
 };
 
-class Unary : public Expr {
+class BoolLiteral : public Expr {
 private:
-  Token m_oper;
-  std::unique_ptr<Expr> m_expr;
+  bool m_val;
 
 public:
-  Unary(Token oper, Expr *expr) : m_oper{oper}, m_expr{expr} {}
+  explicit BoolLiteral(bool val) : m_val{val} {}
 
-  ~Unary() override {
-    std::cout << "~Unary()\n";
+  ~BoolLiteral() override {
+    fmt::println("~BoolLiteral()");
   }
 
   [[nodiscard]] std::string to_string() const override {
-    return fmt::format(
-        "({} {})",
-        m_oper.literal_to_string(),
-        m_expr->to_string());
+    return fmt::format("{}", m_val);
   }
 };
+
+class NilLiteral : public Expr {
+public:
+  NilLiteral() = default;
+
+  ~NilLiteral() override {
+    fmt::println("~NilLiteral()");
+  }
+
+  [[nodiscard]] std::string to_string() const override {
+    return fmt::format("nil");
+  }
+};
+
+#endif //EXPR_HPP

@@ -1,4 +1,4 @@
-add_executable(cpplox main.cpp lox.cpp scanner.cpp token_type.cpp error_message.cpp)
+add_executable(cpplox main.cpp lox.cpp scanner.cpp parser.cpp token_type.cpp error_message.cpp)
 target_add_warnings(cpplox)
 target_link_libraries(cpplox PRIVATE fmt::fmt)
 

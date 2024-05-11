@@ -1,3 +1,4 @@
+#include "parser.hpp"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
@@ -200,4 +201,17 @@ TEST_CASE("Pretty printer", "[printer]") {
       new StringLiteral("asd")));
   fmt::println("{}", expr->to_string());
   REQUIRE(expr->to_string() == "(* (* (- 123) (group 45.67)) \"asd\")");
+}
+
+TEST_CASE("Parser", "[parser]") {
+  static constexpr auto source = R"src(!!(-123 * (45.67) * "asd") == ("abc" != 42.42))src";
+  Scanner scanner(source);
+  std::vector<Token> tokens = scanner.scan_tokens();
+  REQUIRE(!scanner.had_error());
+
+  Parser parser(tokens);
+  auto expr = parser.parse();
+  fmt::println("{}", expr->to_string());
+  REQUIRE(expr);
+  REQUIRE(expr->to_string() == R"dst((== (! (! (group (* (* (- 123) (group 45.67)) "asd")))) (group (!= "abc" 42.42))))dst");
 }

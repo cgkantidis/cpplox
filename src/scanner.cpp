@@ -40,8 +40,8 @@ void Scanner::add_string_token() {
     m_had_error = true;
     report(
         m_current_line,
-        m_source.substr(m_start_idx, m_current_idx - m_start_idx),
-        "Unterminated string");
+        "Unterminated string",
+        m_source.substr(m_start_idx, m_current_idx - m_start_idx));
     return;
   }
 
@@ -203,6 +203,6 @@ void Scanner::scan_token() {
   m_had_error = true;
   report(
       m_current_line,
-      m_source.substr(m_start_idx, 1),
-      "Unexpected character");
+      "Unexpected character",
+      m_source.substr(m_start_idx, 1));
 }

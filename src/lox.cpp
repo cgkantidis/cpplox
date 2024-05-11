@@ -7,6 +7,7 @@
 #include <vector>  // std::vector
 
 #include "lox.hpp"
+#include "parser.hpp"
 #include "scanner.hpp"
 
 /// Read the whole file at script_path into memory and pass its contents to
@@ -45,11 +46,17 @@ int Lox::run_prompt() {
 /// Run the Lox interpreter on the `source` code
 void Lox::run(char const *source) {
   Scanner scanner(source);
-  std::vector<Token> const tokens = scanner.scan_tokens();
+  std::vector<Token> tokens = scanner.scan_tokens();
   m_had_error = scanner.had_error();
 
-  for (auto const &token : tokens) {
-    std::cout << token.to_string() << '\n';
+  Parser parser(tokens);
+  auto expr = parser.parse();
+  m_had_error = m_had_error || !expr;
+
+  if (m_had_error) {
+    return;
   }
+
+  fmt::println("{}", expr->to_string());
   std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
 }
