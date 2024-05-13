@@ -214,4 +214,5 @@ TEST_CASE("Parser", "[parser]") {
   fmt::println("{}", expr->to_string());
   REQUIRE(expr);
   REQUIRE(expr->to_string() == R"dst((== (! (! (group (* (* (- 123) (group 45.67)) "asd")))) (group (!= "abc" 42.42))))dst");
+  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
 }
