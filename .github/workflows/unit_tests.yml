@@ -2,24 +2,27 @@ name: unit_tests
 run-name: Running unit tests
 on: [push]
 jobs:
-  build_and_test_with_gcc:
-    runs-on: ubuntu-latest
+  build_and_test:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc-14, clang-18]
+        cxx: [g++-14, clang++-18]
+        build_type: [Release, Debug, ASAN, MSAN, UBSAN, TSAN]
+        exclude:
+          - cc: gcc-14
+            cxx: clang++-18
+          - cc: clang-18
+            cxx: g++-14
+          - cc: gcc-14
+            build_type: MSAN
     steps:
       - uses: actions/checkout@v4
-      - run: cmake -B build -DCMAKE_BUILD_TYPE=ASAN
+      - run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
       - run: cmake --build build -j$(nproc)
       - run: ctest --test-dir build/tests --output-on-failure
     env:
-      CC: gcc-13
-      CXX: g++-13
-  build_and_test_with_clang:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cmake -B build -DCMAKE_BUILD_TYPE=ASAN
-      - run: cmake --build build -j$(nproc)
-      - run: ctest --test-dir build/tests --output-on-failure
-    env:
-      CC: clang-15
-      CXX: clang++-15
+      CC: ${{ matrix.cc  }}
+      CXX: ${{ matrix.cxx }}
 
