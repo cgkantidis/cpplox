@@ -10,5 +10,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL TSAN)
   target_link_options(cpplox PRIVATE -fsanitize=thread)
 elseif(CMAKE_BUILD_TYPE STREQUAL MSAN)
   target_link_options(cpplox PRIVATE -fsanitize=memory)
+  #target_link_options(cpplox PRIVATE -fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer -fno-optimize-sibling-calls -pie -g -stdlib=libc++ -L${CMAKE_SOURCE_DIR}/llvm-project/build/lib -lc++abi)
 endif()
 

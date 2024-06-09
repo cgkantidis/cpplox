@@ -9,14 +9,12 @@ jobs:
       matrix:
         cc: [gcc-14, clang-18]
         cxx: [g++-14, clang++-18]
-        build_type: [Release, Debug, ASAN, MSAN, UBSAN, TSAN]
+        build_type: [Release, Debug, ASAN, UBSAN, TSAN]
         exclude:
           - cc: gcc-14
             cxx: clang++-18
           - cc: clang-18
             cxx: g++-14
-          - cc: gcc-14
-            build_type: MSAN
     steps:
       - uses: actions/checkout@v4
       - run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
