@@ -26,7 +26,7 @@ TEST_CASE("Scan number", "[scanner]") {
   REQUIRE(tokens[0].literal_to_string() == "1234");
   REQUIRE(tokens[1].literal_to_string() == "EOF");
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Scan number no new line", "[scanner]") {
@@ -37,7 +37,7 @@ TEST_CASE("Scan number no new line", "[scanner]") {
   REQUIRE(tokens[0].literal_to_string() == "1234");
   REQUIRE(tokens[1].literal_to_string() == "EOF");
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Unexpected characters are skipped", "[scanner]") {
@@ -49,7 +49,7 @@ $^)");
   REQUIRE(tokens.size() == 1);
   REQUIRE(tokens[0].literal_to_string() == "EOF");
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Comments", "[scanner]") {
@@ -63,7 +63,7 @@ TEST_CASE("Comments", "[scanner]") {
   REQUIRE(tokens[0].literal_to_string() == "1234");
   REQUIRE(tokens[1].literal_to_string() == "EOF");
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Operators", "[scanner]") {
@@ -82,7 +82,7 @@ TEST_CASE("Operators", "[scanner]") {
           {"!", "*", "+", "-", "/", "<", ">",  "<=", ">=", "==", "!=", "!",
            "*", "+", "-", "/", "<", ">", "<=", ">=", "==", "!=", "EOF"})));
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Strings", "[scanner]") {
@@ -109,7 +109,7 @@ line string"
            "this is a multi\nline string",
            "EOF"})));
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Unterminated string", "[scanner]") {
@@ -123,7 +123,7 @@ TEST_CASE("Unterminated string", "[scanner]") {
       str_tokens,
       Catch::Matchers::Equals(std::vector<std::string>({"EOF"})));
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Numbers", "[scanner]") {
@@ -142,7 +142,7 @@ TEST_CASE("Numbers", "[scanner]") {
       Catch::Matchers::Equals(
           std::vector<std::string>({"123", "123", "123.456", "EOF"})));
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Identifiers", "[scanner]") {
@@ -185,7 +185,7 @@ CLASSS
            "this", "true",  "var",    "while",  "AND",    "And",
            "anD",  "CLASS", "classs", "CLASSS", "EOF"})));
 
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
 
 TEST_CASE("Pretty printer", "[printer]") {
@@ -214,5 +214,5 @@ TEST_CASE("Parser", "[parser]") {
   fmt::println("{}", expr->to_string());
   REQUIRE(expr);
   REQUIRE(expr->to_string() == R"dst((== (! (! (group (* (* (- 123) (group 45.67)) "asd")))) (group (!= "abc" 42.42))))dst");
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }

@@ -58,5 +58,5 @@ void Lox::run(char const *source) {
   }
 
   fmt::println("{}", expr->to_string());
-  std::for_each(tokens.begin(), tokens.end(), std::mem_fn(&Token::free_token));
+  std::ranges::for_each(tokens, std::mem_fn(&Token::free_token));
 }
